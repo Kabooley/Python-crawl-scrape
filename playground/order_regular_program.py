@@ -23,10 +23,15 @@ jsonファイルをcsvで出力して、あらかじめ用意しておいた（�
 diffmergeで比較する
 
 あらかじめ手入力csvファイルは番組情報が完全に取得できていることを確認しておくこと
+めんどい(;´Д｀)
+
+表示形式
+
 
 """
 import json
 import os
+import re
 
 def main():
     path = "./playground/out/create_table.json"
@@ -42,6 +47,7 @@ def main():
     print(len(jsonfile))
     for lists in jsonfile:
         for list in lists:
+            # 各番組所法は{}の辞書型
             print(list)
 
 
@@ -49,6 +55,18 @@ def main():
 # 日付と開始時間の昇順
 # 新しいlistを用意して、昇順で{}を並び変える
 # {'ft': '202106120600', 'to': '202106120700'}のデータを日付：6/12 開始時間: 6:00、終了時間: 7:00で生成しなおす
-def order(table: json):
+# def order(table: json):
+
+
+
+def yyyymmddhhmm_2b_seperated(origin_str: str) -> tuple:
+    pattern = r'\b(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})\b'
+    rx = re.compile(pattern)
+    matches = rx.match(origin_str)
+    # print(rx.fullmatch(origin_str))
+    if matches:
+        return matches.groups()
+    else:
+        return ()
 
 main()
