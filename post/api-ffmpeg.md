@@ -95,3 +95,42 @@ index番号なので一番初めのファイルは`0`, そのつぎは`1`のよ�
 
 #### stream_index
 
+`-threads:1 4`
+"2番目のストリームをカウント４のスレッドにセットする"
+下記のように`stream_type`が指定されているうえで利用する場合
+たとえば`v`にマッチするストリームのうちからｲﾝﾃﾞｯｸｽで選択する形になる
+（つまり`stream_type`が優先される形）
+
+
+#### stream_type[:additional_stream_specifier]
+
+- v or V: video      `v`はすべてのビデオストリームに一致する `V`はサムネイルやピクチャー、カバーアートにアタッチされていないビデオストリームの身に一致する
+
+- a: audio
+- s: subtitle
+- d: data
+- t: attatchments
+
+もしも`additional_stream_specifier`が使用されている場合
+`additional_stream_specifier`と一致するストリームと、
+`additional_stream_specifier`のタイプを持つストリームと一致する
+
+#### p:program_id[:additional_stream_specifier]
+
+
+
+## Detailed Description
+
+トランスコーディング・プロセスによる各出力は下記の画像の通りに説明可能である
+![detailed_description_1]("./ffmpeg_detailed_description_1.PNG")
+
+
+- inputファイルの処理：
+`libavformat`ライブラリ(`demuxers`含む)を呼び出して`input`ファイルを読み込み
+ファイルの中からエンコードされたデータを含むパケットを取得する
+
+もしも複数ファイルが存在する場合、
+アクティブな入力ストリームのうちもっとも低いタイムスタンプをトラッキングすることで、
+複数ストリームを同期しようとする
+
+
