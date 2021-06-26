@@ -1,4 +1,8 @@
-# How to use ffmpeg
+# How to use 
+
+
+まどろっこしい。
+ページ丸っと翻訳して読み解く方に時間を割いて
 
 ## 目標：ストリーミング配信されている`.m3u8`ファイルをローカルに保存するよ
 
@@ -121,6 +125,15 @@ index番号なので一番初めのファイルは`0`, そのつぎは`1`のよ�
 
 ## Detailed Description
 
+inputfile
+--> `demuxer`
+--> `decoder`
+--> `decode frames`
+--> `encoder`
+--> `encoded data packets`
+--> `muxer`
+--> outputfile
+
 トランスコーディング・プロセスによる各出力は下記の画像の通りに説明可能である
 ![detailed_description_1]("./ffmpeg_detailed_description_1.PNG")
 
@@ -133,4 +146,64 @@ index番号なので一番初めのファイルは`0`, そのつぎは`1`のよ�
 アクティブな入力ストリームのうちもっとも低いタイムスタンプをトラッキングすることで、
 複数ストリームを同期しようとする
 
+取得したパケットはデコーダへ送られる
+デコーダは非圧縮フレームを生成する(フィルタリングを施すこともできる）
 
+### filtering
+
+エンコーディング前に、`libavfilter`ライブラリを使って生のオーディオや動画を処理することができる
+複数の連鎖フィルターがフィルターグラフを形成する
+ffmpegは`simple filtergraph`と`complex filtergraph`の2種類のフィルターグラフに区別する
+
+### simple filtergraph
+
+単一input-file、単一output-file
+`per-stream -filter`オプションでsimple filtergraphを命令できる
+
+
+### complex filtergraph
+
+複数input-file、非同数複数output-fileになる場合がある
+`-filter_complex`オプションで指定する このオプションはｸﾞﾛｰﾊﾞﾙである
+故に単一ストリームにのみに対して適用できない
+
+
+
+### Stream Copy
+
+stream copyは`-codec`オプションに`copy`パラメータを渡したときのモードである
+でコードとエンコードを省略させてdemuxingとmuxingのみさせる
+
+これはコンテナのフォーマットの変更やコンテナレベルのメタデータの変更を実施するのに便利である
+
+エンコードとでコードがないからとっても処理が早くて質のロスがない
+いっぽうで様々の理由でうまくいかない場合が多い
+
+
+## Stream Selection
+
+streamの選択方法について
+`-map`オプションは各outputファイルに対して手動のストリーム選択操作を実現する
+
+`-map`をスキップして自動選択させることも可能である
+-vn / -an / -sn / -dnオプションを使用すると、複雑なフィルターグラフの出力であるストリームを除いて、手動でマッピングするか自動で選択するかにかかわらず、ビデオ、オーディオ、字幕、データストリームの包含をスキップできます。
+
+
+## 実際に超a&g+からffmpegでストリーミング配信を保存してみる
+
+コマンド例
+```terminal
+>$ ffmpeg -i {URL} -t {DURATION} -movflags faststart -ar 48000 -c copy {OUTPUT_FILE}
+```
+
+URLはインプットストリーム
+DURATIONは番組の時間
+OUTPUT_FILEは出力ファイル名である
+
+なんかyoutubeのくっそ怪しい動画をいくつか参考にしてみよう
+これとか？
+https://www.youtube.com/watch?v=SC4cZzqJhAQ&t=185s
+
+ほかのプロジェクト
+- `webm`を`mp4`に、できうる限り最高のクオリティで変換するとか
+- ストリーミング配信動画をWindowsのウィンドウ画面で動画だけ表示するとか(windowsアプリケーション開発だね...)
