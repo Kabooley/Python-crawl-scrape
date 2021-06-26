@@ -16,6 +16,13 @@ https://www.ffmpeg.org/ffmpeg.html#Synopsis
 見つけたサイト：
 https://blog.katsubemakito.net/macos/ffmpeg
 
+https://qiita.com/uupaa/items/c76c76cb149470bf89f2
+
+## installation to Ubuntu-20.04
+
+https://goto-linux.com/ja/2019/8/22/ubuntu-20.04-ffmpeg%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB/
+
+
 ## とにかく公式のDocumentationを読み解く
 
 `ffmpeg`は生放送の音声・動画を変換してくれる（ソフトウェアです）
@@ -196,6 +203,7 @@ streamの選択方法について
 >$ ffmpeg -i {URL} -t {DURATION} -movflags faststart -ar 48000 -c copy {OUTPUT_FILE}
 ```
 
+
 URLはインプットストリーム
 DURATIONは番組の時間
 OUTPUT_FILEは出力ファイル名である
@@ -204,6 +212,16 @@ OUTPUT_FILEは出力ファイル名である
 これとか？
 https://www.youtube.com/watch?v=SC4cZzqJhAQ&t=185s
 
-ほかのプロジェクト
-- `webm`を`mp4`に、できうる限り最高のクオリティで変換するとか
-- ストリーミング配信動画をWindowsのウィンドウ画面で動画だけ表示するとか(windowsアプリケーション開発だね...)
+
+#### はじめてやってみた
+
+Qiitaの記事を参考にターミナルでやってみた
+
+```terminal
+$ ffmpeg -i https://www.uniqueradio.jp/agplayer5/hls/mbr-0.m3u8 -movflags faststart -c copy -bsf:a aac_adtstoasc first_rec.mp4
+```
+
+問題
+- 超a&g+のHLSのURLをinputにしたら、とくに番組ごとにURLは変更されないらしく、永遠に取得し続けてしまう。なので時間指定しないといかんな
+- 映像がとれていない。
+
