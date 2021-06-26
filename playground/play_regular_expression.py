@@ -74,6 +74,7 @@ def sub_date_express(pattern, date_str: str, substr):
 def match_group(pattern, target: str):
     print("-- match_group() --")
     rx = re.compile(pattern)
+    # Match という型の変数を返す
     matches = rx.match(target)
     if matches:
         print(matches)
