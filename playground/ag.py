@@ -139,6 +139,11 @@ def create_table(table):
             i2 = i
             while(i2<7):
                 classes = td.get('class')
+                # もしも`colspan`が`None`じゃなくて数値を返す場合、その番組は番組表の複数日にまたがって表示されている
+                colspan = td.get('colspan')
+                # print(colspan)
+                # if colspan is not None:
+                #     print(td.select("div.weeklyProgram-content a")[0].text.replace("\n", "", 3))
                 # 番組名 
                 if "is-joqr" in classes:
                     title = "放送休止"
