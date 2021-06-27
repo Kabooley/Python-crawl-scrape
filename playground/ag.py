@@ -1,20 +1,59 @@
+"""
+超a&g+の番組表ページから番組情報を取得してJSONファイルに保存する
+
+- コマンドライン
+    "o-json": 必須。出力するJSONファイルのファイル名
+"""
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver import Remote
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+from cerberus import Validator
 import requests
 import datetime
 import json
+import sys
 
-URL = "https://www.joqr.co.jp/qr/agregularprogram/"
+GLOBALS = {
+    "URL": "https://www.joqr.co.jp/qr/agregularprogram/",
+    "output_json": "",
+    "selector": "span.personality"
+}
 Selector = "span.personality"
-HTML_FILE_NAME = "regular-program.html"
 
+# Validations for command line
+schema = {
+    # 出力するcreate_table.jsonのファイル名をコマンドラインで取得するため
+    "json": {
+        'type': 'string',
+        'required': True,
+        'regex': r"^[\w,\s-]+\.json"
+    }
+}
+
+
+
+def commandline_validator(args) -> bool:
+    cmnd_validator = Validator(schema)
+    if len(args) > 1:
+        result = cmnd_validator.validate({"json": args[1]})
+        if not result: 
+            print("Error: Command line Validation: ", cmnd_validator.errors)
+        return result
+    else:
+        return False
 
 # スクレイピングでどうにかする
 def main():
+    args = sys.argv
+    if not commandline_validator(args):
+        return
+    else:
+        GLOBALS["output_json"] = args[1]
+
     options = webdriver.ChromeOptions()
     options.add_argument("--disable-gpu")
     options.add_argument("--disable-extensions")
@@ -23,17 +62,18 @@ def main():
     options.add_argument("--start-maximized")
     options.add_argument('--headless')
     browser = webdriver.Chrome(options=options)
-    browser.get(URL)
+    browser.get(GLOBALS["URL"])
 
     assert "レギュラー番組表" in browser.title
 
     try:
         # 指定した要素がDOM上に現れるまで待機する 要素が現れない場合、例外が投げられる
+        # TypeError: find_element() takes from 1 to 3 positional arguments but 13 were given
         element = WebDriverWait(browser, 30).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, Selector))
+            EC.presence_of_element_located((By.CSS_SELECTOR, GLOBALS["selector"]))
         )
         # 問題なければBeautifulSoup4でHTMLを取得しよう
-        getHTML(browser, "")
+        create_json(browser)
     finally:
         browser.quit()
 
@@ -41,7 +81,7 @@ def main():
 
 
 
-def getHTML(driver: Remote, selector: str ) -> str:
+def create_json(driver: Remote) -> str:
     # driver.page_source: str
     soup = BeautifulSoup(driver.page_source.encode('utf-8'), features="html.parser")
     table_body = soup.find("table").find("tbody")
@@ -49,12 +89,12 @@ def getHTML(driver: Remote, selector: str ) -> str:
         print('Error: table body is not exist or not found')
         return
     new_table = create_table(table_body)
-    f = open("create_table_2.json", "w", encoding="utf-8")
+    f = open(GLOBALS["output_json"], "w", encoding="utf-8")
     json.dump(new_table, f, ensure_ascii=False)
     f.close()
 
 
-# Qiitaのあれそのまんまです
+# Qiitaのあれに修正を加えている
 def create_table(table):
     # 月曜の日付（基準）を取得する
     today = datetime.date.today()
@@ -179,16 +219,6 @@ def create_table(table):
     return main_data
 
 
-# HTMLファイルを保存する
-# 日本語が文字化けする..."utf-8"でエンコードできればいいんだけどね...やりかた調べるのめんどい
-def saveHTMLFile(html: str):
-    # text = """ + html + """
-    Html_file = open(HTML_FILE_NAME, "w")
-    Html_file.write(html)
-    Html_file.close()
-
-
-# 現在取得できていない番組が、create_table()でどのように扱われているのかのチェック
 
 
 main()
