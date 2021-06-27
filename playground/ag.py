@@ -188,9 +188,7 @@ def saveHTMLFile(html: str):
     Html_file.close()
 
 
-# HELEPRS
-
-# 型判定
+# 現在取得できていない番組が、create_table()でどのように扱われているのかのチェック
 
 
 main()
