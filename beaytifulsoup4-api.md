@@ -47,3 +47,19 @@ css_soup.select("p.strikeout.body")
 # [<p class="body strikeout"></p>]
 ```
 
+
+### select()とfind_all()
+
+selectもfind_allもどちらもリストを返す
+マッチした要素と、その子要素を含んだ全部を1つの配列要素として扱う
+なのでマッチした要素からさらにその子要素を取得したい場合
+ひとつの例として下記のようにする
+
+両者は同じ  
+
+```Python
+    # tdはbs4で取得した要素
+    print(td.find_all("div", class_="weeklyProgram-content")[0].find_all('a'))
+    print(td.select("div.weeklyProgram-content")[0].find_all('a'))
+    print(td.select("div.weeklyProgram-content")[0].select('a'))
+```

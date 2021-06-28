@@ -100,7 +100,10 @@ def create_table(table):
     today = datetime.date.today()
     monday = (today - datetime.timedelta(days=today.weekday())).strftime("%Y%m%d")
     # 切り替えの基準を作る
+    # criterion は 6:00 の時間データである
+    # 6:00であるのは、超a&g+が朝6時から放送開始するから
     criterion = datetime.datetime.strptime("06:00", "%H:%M")
+    # 曜日ごとの「終了時間」を更新するためのリスト
     end_times = [datetime.datetime.strptime("06:00", "%H:%M")] * 7
     main_data = []
     main_data2 = []
@@ -136,17 +139,25 @@ def create_table(table):
             # datetimeに直した日時
             # print(tmp_dt)
 
+            # iやi2はイテレータであり曜日を意味する
             i2 = i
             while(i2<7):
                 classes = td.get('class')
                 # もしも`colspan`が`None`じゃなくて数値を返す場合、その番組は番組表の複数日にまたがって表示されている
                 colspan = td.get('colspan')
-                # print(colspan)
-                # if colspan is not None:
-                #     print(td.select("div.weeklyProgram-content a")[0].text.replace("\n", "", 3))
+
                 # 番組名 
                 if "is-joqr" in classes:
                     title = "放送休止"
+                    pfm = ""
+                    isRepeat = False
+                    isMovie = False
+                    isBroadcast = False
+                # 6/29追記：もう一段挟む必要がある。「新番組」で未定が発生するような場合
+                # "div.weeklyProgram-content"以下にアンカー要素が一つもないこと
+                elif td.select("div.weeklyProgram-content")[0].find_all('a') == []:
+                    print('未定')
+                    title = "pending-space"
                     pfm = ""
                     isRepeat = False
                     isMovie = False
@@ -175,6 +186,10 @@ def create_table(table):
                     new_i = (i2 + 1) % 7
                     if tmp_dt2 == end_times[new_i]:
                         # endtime を更新
+                        # `rowspan`はtd要素の属性値で番組の長さをそのまま表している
+                        # `rowspan = 60`で60分番組
+
+                        # end_timesの更新
                         end_times[new_i] += datetime.timedelta(minutes=int(td.get("rowspan")))
                         ft = datetime.datetime.strptime(monday + time_str, "%Y%m%d%H%M") + datetime.timedelta(days=new_i)
                         to = ft + datetime.timedelta(minutes=int(td.get("rowspan")))

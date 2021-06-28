@@ -96,6 +96,10 @@ windows10アプリケーション vs webサイト
 
 
 
+6/29:
+なんかただしく取れていない。
+ぜろから作り直さないといかんかな～
+
 ```Python
 
     # 結果この方法が正しいとわかった
@@ -752,3 +756,8 @@ Pyxisの夜空の下 de MeetingはHTML要素`td[colspan="4"]`で取得される
 つまりcolspanが指定されている要素は2日間以上にまたがって表示されている番組である
 
 
+tmp_dt:datetime.datetime(1900, 1, 1, 6, 0)
+ft: datetime.datetime(2021, 6, 28, 6, 0)
+to: datetime.datetime(2021, 6, 28, 7, 0)
+
+どうやら番組取得ごとに`end_times`の配列の値が更新されていく
