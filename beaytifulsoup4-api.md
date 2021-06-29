@@ -63,3 +63,6 @@ selectもfind_allもどちらもリストを返す
     print(td.select("div.weeklyProgram-content")[0].find_all('a'))
     print(td.select("div.weeklyProgram-content")[0].select('a'))
 ```
+
+
+## bs4の基本的な使い方

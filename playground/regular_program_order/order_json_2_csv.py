@@ -29,11 +29,17 @@ import csv
 import re
 
 
+tmp_globals = {
+    "read-file-path": "./create_table_3.json",
+    "write-file-path": "./playground/out/joqr_programs_5.csv"
+}
+
+
 def main():
     # read json file
-    path = "./playground/out/create_table_2.json"
+    path = tmp_globals
     # This file includes 7 list and many dict in its each list
-    program_file = readFile(path)
+    program_file = readFile(tmp_globals["read-file-path"])
 
     submain(program_file)
 
@@ -73,7 +79,7 @@ def readFile(path: str) -> list:
 # 書き込みデータ例：{'title': '鷲崎健のヨルナイト×ヨルナイト', 'pfm': '鷲崎健', 'isBroadcast': True, 'isMovie': True, 'isRepeat': False, 'date': '20210607', 'start': '00:00', 'close': '00:30'}
 # header: ['title', 'pfm', 'isBroadcast', 'isMovie', 'isRepeat', 'date', 'start', 'close']
 def write_dict_csv_by_row(data: list):
-    with open("playground/out/order_json_2_csv.csv", "a",encoding="utf_8_sig", newline="") as csvfile:
+    with open(tmp_globals['write-file-path'], "a",encoding="utf_8_sig", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=['title', 'pfm', 'isBroadcast', 'isMovie', 'isRepeat', 'date', 'start', 'close'])
         writer.writeheader()
         for dict in data:

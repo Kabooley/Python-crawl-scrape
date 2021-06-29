@@ -184,28 +184,78 @@ def create_table(table):
                     tmp_dt2 = tmp_dt + datetime.timedelta(days=1)
                     new_i = (i2 + 1) % 7
                     if tmp_dt2 == end_times[new_i]:
+                        # colspanが設定されていると、曜日をまたいで同じ番組が組み込まれている
+                        if td.has_attr('colspan'):
+                            multiple_days = int(td.get('colspan'))
+                            min = int(td.get("rowspan"))
+                            ft = datetime.datetime.strptime(monday + time_str, "%Y%m%d%H%M") + datetime.timedelta(days=new_i)
+                            to = ft + datetime.timedelta(minutes=int(td.get("rowspan")))
+                            new_data = {
+                                "title": title,
+                                "ft": ft.strftime("%Y%m%d%H%M"),
+                                "to": to.strftime("%Y%m%d%H%M"),
+                                "pfm": pfm,
+                                "isBroadcast": isBroadcast,
+                                "isMovie": isMovie
+                            }
+                            for itr in range(new_i, multiple_days):
+                                end_times[itr] += datetime.timedelta(minutes=min)
+                                if isBroadcast:
+                                    new_data["isRepeat"] = isRepeat
+                                else:
+                                    new_data["isRepeat"] = True
+                                main_data[itr].append(new_data)
+
                         # endtime を更新
                         # `rowspan`はtd要素の属性値で番組の長さをそのまま表している
                         # `rowspan = 60`で60分番組
-
-                        # end_timesの更新
-                        end_times[new_i] += datetime.timedelta(minutes=int(td.get("rowspan")))
-                        ft = datetime.datetime.strptime(monday + time_str, "%Y%m%d%H%M") + datetime.timedelta(days=new_i)
-                        to = ft + datetime.timedelta(minutes=int(td.get("rowspan")))
-                        new_data = {
-                            "title": title,
-                            "ft": ft.strftime("%Y%m%d%H%M"),
-                            "to": to.strftime("%Y%m%d%H%M"),
-                            "pfm": pfm,
-                            "isBroadcast": isBroadcast,
-                            "isMovie": isMovie,
-                        }
-                        if isBroadcast:
-                            new_data["isRepeat"] = isRepeat
                         else:
-                            new_data["isRepeat"] = True
-                        main_data[new_i].append(new_data)
+                            # end_timesの更新
+                            end_times[new_i] += datetime.timedelta(minutes=int(td.get("rowspan")))
+                            ft = datetime.datetime.strptime(monday + time_str, "%Y%m%d%H%M") + datetime.timedelta(days=new_i)
+                            to = ft + datetime.timedelta(minutes=int(td.get("rowspan")))
+                            new_data = {
+                                "title": title,
+                                "ft": ft.strftime("%Y%m%d%H%M"),
+                                "to": to.strftime("%Y%m%d%H%M"),
+                                "pfm": pfm,
+                                "isBroadcast": isBroadcast,
+                                "isMovie": isMovie,
+                            }
+                            if isBroadcast:
+                                new_data["isRepeat"] = isRepeat
+                            else:
+                                new_data["isRepeat"] = True
+                            main_data[new_i].append(new_data)
                         break
+                # if tmp_dt < criterion:
+                #     tmp_dt2 = tmp_dt + datetime.timedelta(days=1)
+                #     new_i = (i2 + 1) % 7
+                #     if tmp_dt2 == end_times[new_i]:
+                #         # endtime を更新
+                #         # `rowspan`はtd要素の属性値で番組の長さをそのまま表している
+                #         # `rowspan = 60`で60分番組
+
+                #         # end_timesの更新
+                #         end_times[new_i] += datetime.timedelta(minutes=int(td.get("rowspan")))
+                #         ft = datetime.datetime.strptime(monday + time_str, "%Y%m%d%H%M") + datetime.timedelta(days=new_i)
+                #         to = ft + datetime.timedelta(minutes=int(td.get("rowspan")))
+                #         new_data = {
+                #             "title": title,
+                #             "ft": ft.strftime("%Y%m%d%H%M"),
+                #             "to": to.strftime("%Y%m%d%H%M"),
+                #             "pfm": pfm,
+                #             "isBroadcast": isBroadcast,
+                #             "isMovie": isMovie,
+                #         }
+                #         if isBroadcast:
+                #             new_data["isRepeat"] = isRepeat
+                #         else:
+                #             new_data["isRepeat"] = True
+                #         main_data[new_i].append(new_data)
+                #         break
+
+                # 日付をまたがない分(以下のelseｽｺｰﾌﾟ)は正しく取得できる
                 else:
                     if tmp_dt == end_times[i2]:
                         # colspanが設定されていると、曜日をまたいで同じ番組が組み込まれている
@@ -224,8 +274,9 @@ def create_table(table):
                                 "isBroadcast": isBroadcast,
                                 "isMovie": isMovie
                             }
+                            # またがっている曜日分、end_timesを更新する
                             for itr in range(i2, multiple_days):
-                                end_times[itr] += datetime.timedelta(minutes=min)
+                                end_times[itr] += datetime.timedelta(days= (itr - i2), minutes=min)
                                 if isBroadcast:
                                     new_data["isRepeat"] = isRepeat
                                 else:
@@ -265,10 +316,6 @@ def create_table(table):
                         # main_data2[i2].append(new_data)
                         break
                 i2 += 1
-                # if i2 == 7:
-                    # 追加できなかった番組  エラー箇所 
-                    # print(td.find(class_="title-p").text.replace("\n", "", 3), ft.strftime("%Y%m%d%H%M"), time_str)
-                    # print(td.select("div.weeklyProgram-content a")[0].text.replace("\n", "", 3), ft.strftime("%Y%m%d%H%M"), time_str)
     for i in range(7):
         main_data[i].extend(main_data2[i])
     return main_data
