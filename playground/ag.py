@@ -144,7 +144,6 @@ def create_table(table):
             while(i2<7):
                 classes = td.get('class')
                 # もしも`colspan`が`None`じゃなくて数値を返す場合、その番組は番組表の複数日にまたがって表示されている
-                colspan = td.get('colspan')
 
                 # 番組名 
                 if "is-joqr" in classes:
@@ -209,25 +208,61 @@ def create_table(table):
                         break
                 else:
                     if tmp_dt == end_times[i2]:
-                        if title == "ラジオアニメージュ":
-                            end_times[i2] += datetime.timedelta(minutes=30)
+                        # colspanが設定されていると、曜日をまたいで同じ番組が組み込まれている
+                        if td.has_attr('colspan'):
+                            # colspanの数値分だけi2とまたいでいる曜日の終了時間を更新する必要がある
+                            # ここでその処理を行ってしまうと、他の処理が面倒になるから終了時間だけ更新すれば「あとから挿入」で済むかしら？
+                            multiple_days = int(td.get('colspan'))
+                            min = int(td.get("rowspan"))
+                            ft = datetime.datetime.strptime(monday + time_str, "%Y%m%d%H%M") + datetime.timedelta(days=i2)
+                            to = ft + datetime.timedelta(minutes=int(td.get("rowspan")))
+                            new_data = {
+                                "title": title,
+                                "ft": ft.strftime("%Y%m%d%H%M"),
+                                "to": to.strftime("%Y%m%d%H%M"),
+                                "pfm": pfm,
+                                "isBroadcast": isBroadcast,
+                                "isMovie": isMovie
+                            }
+                            for itr in range(i2, multiple_days):
+                                end_times[itr] += datetime.timedelta(minutes=min)
+                                if isBroadcast:
+                                    new_data["isRepeat"] = isRepeat
+                                else:
+                                    new_data["isRepeat"] = True
+                                main_data2[itr].append(new_data)
                         else:
                             end_times[i2] += datetime.timedelta(minutes=int(td.get("rowspan")))
-                        ft = datetime.datetime.strptime(monday + time_str, "%Y%m%d%H%M") + datetime.timedelta(days=i2)
-                        to = ft + datetime.timedelta(minutes=int(td.get("rowspan")))
-                        new_data = {
-                            "title": title,
-                            "ft": ft.strftime("%Y%m%d%H%M"),
-                            "to": to.strftime("%Y%m%d%H%M"),
-                            "pfm": pfm,
-                            "isBroadcast": isBroadcast,
-                            "isMovie": isMovie
-                        }
-                        if isBroadcast:
-                            new_data["isRepeat"] = isRepeat
-                        else:
-                            new_data["isRepeat"] = True
-                        main_data2[i2].append(new_data)
+                            ft = datetime.datetime.strptime(monday + time_str, "%Y%m%d%H%M") + datetime.timedelta(days=i2)
+                            to = ft + datetime.timedelta(minutes=int(td.get("rowspan")))
+                            new_data = {
+                                "title": title,
+                                "ft": ft.strftime("%Y%m%d%H%M"),
+                                "to": to.strftime("%Y%m%d%H%M"),
+                                "pfm": pfm,
+                                "isBroadcast": isBroadcast,
+                                "isMovie": isMovie
+                            }
+                            if isBroadcast:
+                                new_data["isRepeat"] = isRepeat
+                            else:
+                                new_data["isRepeat"] = True
+                            main_data2[i2].append(new_data)
+                        # ft = datetime.datetime.strptime(monday + time_str, "%Y%m%d%H%M") + datetime.timedelta(days=i2)
+                        # to = ft + datetime.timedelta(minutes=int(td.get("rowspan")))
+                        # new_data = {
+                        #     "title": title,
+                        #     "ft": ft.strftime("%Y%m%d%H%M"),
+                        #     "to": to.strftime("%Y%m%d%H%M"),
+                        #     "pfm": pfm,
+                        #     "isBroadcast": isBroadcast,
+                        #     "isMovie": isMovie
+                        # }
+                        # if isBroadcast:
+                        #     new_data["isRepeat"] = isRepeat
+                        # else:
+                        #     new_data["isRepeat"] = True
+                        # main_data2[i2].append(new_data)
                         break
                 i2 += 1
                 # if i2 == 7:
@@ -361,6 +396,15 @@ True
 False
 ```
 
+
+
+6/29:
+ag.pyの現状確認できる問題
+1. 
+2. colspanがある番組の組み込みをどうやって実装するべきか
+5. パーソナリティ複数名でも一人しか取得できていない
+6. 初回放送なのにリピート放送扱いになっている
+7. 同じ枠に2番組以上はいる奴は取得できていない件
 
 
 """
