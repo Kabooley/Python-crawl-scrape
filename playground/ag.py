@@ -180,9 +180,11 @@ def create_table(table):
                     isBroadcast = True if td.select('i.icon_program-live') else False
                     
                 # end_time が1900/1/2になったら分岐する
+                # >>part-1<<
                 if tmp_dt < criterion:
                     tmp_dt2 = tmp_dt + datetime.timedelta(days=1)
                     new_i = (i2 + 1) % 7
+                    # >>part-2<<
                     if tmp_dt2 == end_times[new_i]:
                         # colspanが設定されていると、曜日をまたいで同じ番組が組み込まれている
                         if td.has_attr('colspan'):
@@ -209,6 +211,7 @@ def create_table(table):
                         # endtime を更新
                         # `rowspan`はtd要素の属性値で番組の長さをそのまま表している
                         # `rowspan = 60`で60分番組
+                        # >>part-3<<
                         else:
                             # end_timesの更新
                             end_times[new_i] += datetime.timedelta(minutes=int(td.get("rowspan")))
@@ -256,7 +259,9 @@ def create_table(table):
                 #         break
 
                 # 日付をまたがない分(以下のelseｽｺｰﾌﾟ)は正しく取得できる
+                # >>part-4<<
                 else:
+                    # >>part-5<<
                     if tmp_dt == end_times[i2]:
                         # colspanが設定されていると、曜日をまたいで同じ番組が組み込まれている
                         if td.has_attr('colspan'):
@@ -264,24 +269,37 @@ def create_table(table):
                             # ここでその処理を行ってしまうと、他の処理が面倒になるから終了時間だけ更新すれば「あとから挿入」で済むかしら？
                             multiple_days = int(td.get('colspan'))
                             min = int(td.get("rowspan"))
-                            ft = datetime.datetime.strptime(monday + time_str, "%Y%m%d%H%M") + datetime.timedelta(days=i2)
-                            to = ft + datetime.timedelta(minutes=int(td.get("rowspan")))
-                            new_data = {
-                                "title": title,
-                                "ft": ft.strftime("%Y%m%d%H%M"),
-                                "to": to.strftime("%Y%m%d%H%M"),
-                                "pfm": pfm,
-                                "isBroadcast": isBroadcast,
-                                "isMovie": isMovie
-                            }
+                            # ft = datetime.datetime.strptime(monday + time_str, "%Y%m%d%H%M") + datetime.timedelta(days=i2)
+                            # to = ft + datetime.timedelta(minutes=int(td.get("rowspan")))
+                            # new_data = {
+                            #     "title": title,
+                            #     "ft": ft.strftime("%Y%m%d%H%M"),
+                            #     "to": to.strftime("%Y%m%d%H%M"),
+                            #     "pfm": pfm,
+                            #     "isBroadcast": isBroadcast,
+                            #     "isMovie": isMovie
+                            # }
                             # またがっている曜日分、end_timesを更新する
                             for itr in range(i2, multiple_days):
                                 end_times[itr] += datetime.timedelta(days= (itr - i2), minutes=min)
+
+                                min = int(td.get("rowspan"))
+                                ft = datetime.datetime.strptime(monday + time_str, "%Y%m%d%H%M") + datetime.timedelta(days=itr)
+                                to = ft + datetime.timedelta(minutes=int(td.get("rowspan")))
+                                new_data = {
+                                    "title": title,
+                                    "ft": ft.strftime("%Y%m%d%H%M"),
+                                    "to": to.strftime("%Y%m%d%H%M"),
+                                    "pfm": pfm,
+                                    "isBroadcast": isBroadcast,
+                                    "isMovie": isMovie
+                                }
                                 if isBroadcast:
                                     new_data["isRepeat"] = isRepeat
                                 else:
                                     new_data["isRepeat"] = True
                                 main_data2[itr].append(new_data)
+                        # >>part-6<<
                         else:
                             end_times[i2] += datetime.timedelta(minutes=int(td.get("rowspan")))
                             ft = datetime.datetime.strptime(monday + time_str, "%Y%m%d%H%M") + datetime.timedelta(days=i2)
