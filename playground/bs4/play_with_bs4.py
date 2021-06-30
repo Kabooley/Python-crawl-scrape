@@ -131,7 +131,8 @@ def navigation_the_tree():
     
     # .string
     # もしも取得した要素はテキストしか持たず、それが`NavigableString`ならば.stringで取得できる
-    print(".strings: ")
+    # テキスト以外も持つ場合、Noneを返す
+    print(".string: ")
     print(soup.title.string)
 
     # .strings
@@ -207,12 +208,109 @@ def find_all_basic(soup: BeautifulSoup):
 
 
 
-# all about css selector to found
 
-# def css_select_basics():
-#     soup = BeautifuleSoup()
+# 
+def _test():
+    html = """
+    <td rowspan="30" class="is-ag">
+        <div class="program-wrap">
+          <div class="weeklyProgram-time">26:30</div>
+          <div class="weeklyProgram-content">
+            <a href="https://www.joqr.co.jp/qr/program/henradi/">小野友樹と夕刻ロベルのへんならじお</a>
+            <i class="icon_program-movie"></i>
+            <span class="personality">
+              <a href="/qr/personality/onoyuki/">小野友樹</a>
+            </span>
+            <span class="personality">
+              <a href="/qr/personality/yukokuroberu/">夕刻ロベル</a>
+            </span>
+          </div>
+        </div>
+    </td>
+    <td rowspan="180" colspan="4" class="is-joqr">
+        <div class="program-wrap">
+          <div class="weeklyProgram-time">27:00</div>
+          <div class="weeklyProgram-content">
+            放送休止
+            <!-- uatdahikaru -->
+          </div>
+        </div>
+    </td>
+    <td rowspan="30" class="is-ag">
+        <div class="program-wrap">
+          <div class="weeklyProgram-time">15:30</div>
+          <div class="weeklyProgram-content">
+            新番組
+            <!--<a href="https://www.joqr.co.jp/qr/program//">新番組</a>-->
+            <!--<span class="personality">
+              <a href="/qr/personality/amatsuki/">天月-あまつき-</a>
+            </span>
+            <span class="personality">
+              <a href="/qr/personality/yamamotokazutomi/">山本和臣</a>
+            </span>
+            <span class="personality">
+              <a href="/qr/personality/yuseigamebu/">遊星高校ゲーム部</a>
+            </span>-->
+          </div>
+        </div>
+    </td>
+    """
+    soup = BeautifulSoup(html, "html.parser")
+    for td in soup.find_all('td'):
 
-main()
+        # 模索
+        # if td.find_all("div", _class="weeklyProgram-content", string="放送休止"):
+        #     print(td.find_all(string="放送休止"))
+        # else:
+        #     print("not 放送休止")
+        # print('\n\n')
+        # print(td.find_all("div", class_="weeklyProgram-content"))
+        # # .string returns <bs4.element.NavigableString> 扱いが面倒
+        # print(td.find("div", class_="weeklyProgram-content").string)
+        # # .strings also returns <bs4.element.NavigableString> 使う場面があるのだろうか...
+        # # for str_ in td.find("div", class_="weeklyProgram-content").strings:
+        # #     print(str_)
+        # # .stripped_strings returns <class 'str'> とても扱いやすい
+        # for str_ in td.find("div", class_="weeklyProgram-content").stripped_strings:
+        #     print(str_)
+        #     print(type(str_))
+        # # returns ['\n            放送休止\n          ']
+        # print(td.find("div", class_="weeklyProgram-content").contents)
+        # print('\n\n')
+
+        # # 下記のコードでは、コメントを拾ってしまうらしい...
+        # # if td.find("div", class_="weeklyProgram-content").string:
+        # # コメントを無視するコードを追加する
+
+
+        # 一旦できたもの。.stringはコメントを拾うとNoneを返すためボツ
+        # td.find("div", class_="weeklyProgram-content")以下はテキストしか含まないかどうかチェックしたい
+        # .stringでは、コメントがあってもNoneを返してしまう...クソか
+        if td.find("div", class_="weeklyProgram-content").string:
+            print("Only text.")
+            # 放送休止が含まれるかチェックする
+            if "放送休止" in td.find("div", class_="weeklyProgram-content").stripped_strings:
+                print("the program is over tonight.")
+            # 新番組枠かチェックする
+            elif "新番組" in td.find("div", class_="weeklyProgram-content").stripped_strings:
+                print("New program comming soon...")
+        else:
+            print("More than only text.")
+
+        # 最終的にできたもの
+        # .stripped_stringsならコメントを拾わないで済む模様
+        # 放送休止枠なのかチェックする
+        if "放送休止" in td.find("div", class_="weeklyProgram-content").stripped_strings:
+            print("the program is over tonight.")
+        # 新番組枠かチェックする
+        elif "新番組" in td.find("div", class_="weeklyProgram-content").stripped_strings:
+            print("New program comming soon...")
+        # 取得要素以下はテキスト以外を含むのかチェックする
+        elif not td.find("div", class_="weeklyProgram-content").string:
+            print("More than only text")
+        
+# main()
+_test()
 
 """
 https://www.crummy.com/software/BeautifulSoup/bs4/doc/#kinds-of-objects
@@ -244,4 +342,15 @@ Stylesheet、Script、およびTemplateStringと呼ばれるクラスも定義�
 それらの唯一の目的は、他の何かを表す文字列を無視することによって、
 ページの本文を簡単に見つけられるようにすることです。 
 （これらのクラスはBeautiful Soup 4.9.0の新機能であり、html5libパーサーはそれらを使用しません。）
+
+
+## .string, .strings, .stripped_strings
+
+.string
+タグ以下はテキストだけだった場合に成功する
+成功：そのテキストからなる`NavigableString`という<bs4.element.NavigableString>を返す。<class 'str'>ではない点注意。
+失敗：テキストだけじゃなかった場合。Noneを返す
+なんと、コメントが含まれているだけでNoneを返すので必ずコメントを回避しなくてはならない
+
+
 """
