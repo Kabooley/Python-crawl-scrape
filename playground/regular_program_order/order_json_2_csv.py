@@ -30,8 +30,10 @@ import re
 
 
 tmp_globals = {
-    "read-file-path": "./create_table_3.json",
-    "write-file-path": "./playground/out/joqr_programs_4.csv"
+    # "read-file-path": "./create_table__.json",
+    # "write-file-path": "./playground/out/joqr_programs_5.csv"
+    "read-file-path": "./create_table__.json",
+    "write-file-path": "./joqr_programs_5.csv"
 }
 
 

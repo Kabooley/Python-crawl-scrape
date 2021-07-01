@@ -12,7 +12,7 @@ def main():
     if table_body is None:
         return
     new_table = create_table(table_body)
-    f = open("create_table.json", "w")
+    f = open("create_table__.json", "w")
     json.dump(new_table, f, ensure_ascii=False)
     f.close()
 

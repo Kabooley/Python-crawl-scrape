@@ -402,6 +402,10 @@ def updated_create_table(table):
                 # 
                 # -- 時間更新パート -----
                 # 
+                # 24:00~6:00までの番組はmain_dataへ突っ込む
+                # 6:00~24:00まので番組はmain_data2へ突っ込む
+                # 
+                # 
                 # end_time が1900/1/2になったら分岐する
                 if tmp_dt < criterion:
                     tmp_dt2 = tmp_dt + datetime.timedelta(days=1)
@@ -489,6 +493,8 @@ def colspaned_program_capture(td, colspan: int, itr: int):
     itr_ = itr
     while(itr_ < itr + colspan):
         print("itr", itr)
+        # end_timesの更新
+        # 
 
 
 
@@ -507,5 +513,14 @@ main()
 通常のループ処理を逸脱して処理を施さなくてはならない
 
 
+break文に行きつかなければ、while文の一番最後の`i2 += 1`へたどり着いて、
+イテレータを更新してくれるはず
 
+- td_all: tdタグを持つtrタグが入ることになる。つまり長さは最大で7になるはず
+- td: ひと番組の情報。イテレータitrと対応する
+- itr: td_allで取得される番組のインデックス。
+そのまま曜日としてみなせるけれど、たとえばtd_allに含まれるtdの数は必ず7つとは限らない
+その場合、曜日としてみなすのは危険である
+ただしく更新できるようにしなくてはならない
+- iterator2: itrの値を引き継ぐイテレータ
 """
