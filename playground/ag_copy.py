@@ -67,12 +67,9 @@ def main():
     assert "レギュラー番組表" in browser.title
 
     try:
-        # 指定した要素がDOM上に現れるまで待機する 要素が現れない場合、例外が投げられる
-        # TypeError: find_element() takes from 1 to 3 positional arguments but 13 were given
         element = WebDriverWait(browser, 30).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, GLOBALS["selector"]))
         )
-        # 問題なければBeautifulSoup4でHTMLを取得しよう
         create_json(browser)
     finally:
         browser.quit()
@@ -339,7 +336,7 @@ def updated_create_table(table):
     main_data = []
     # 基準時間から日付が変わるまでの間の番組を挿入するためのリスト
     main_data2 = []
-    for itr in range(7):
+    for i in range(7):
         main_data.append([])
         main_data2.append([])
     for tr in table.find_all("tr"):
@@ -348,7 +345,8 @@ def updated_create_table(table):
         # 空の<tr>無視
         if (td_all is None) or (len(td_all) == 0):
             continue
-        for i in range(len(td_all)):
+        # itrは0~6をループするはず
+        for itr in range(len(td_all)):
             td = td_all[itr]
 
             # 
@@ -407,10 +405,13 @@ def updated_create_table(table):
                 # end_time が1900/1/2になったら分岐する
                 if tmp_dt < criterion:
                     tmp_dt2 = tmp_dt + datetime.timedelta(days=1)
+                    # new_iは1~7の数値を繰り返す
+                    # (itrとiterator2はインクリメントしていくだけだから)
                     new_i = (iterator2 + 1) % 7
                     if tmp_dt2 == end_times[new_i]:
-                        # endtime を更新
+                        # endtime を更新 「分」だけ更新する。日付は更新しない。
                         end_times[new_i] += datetime.timedelta(minutes=int(td.get("rowspan")))
+                        # 日付が変わるから日付を更新する
                         ft = datetime.datetime.strptime(monday + time_str, "%Y%m%d%H%M") + datetime.timedelta(days=new_i)
                         to = ft + datetime.timedelta(minutes=int(td.get("rowspan")))
                         new_data = {
@@ -442,6 +443,52 @@ def updated_create_table(table):
                         main_data2[iterator2].append(new_data)
                         break
                 iterator2 += 1
+
+
+
+# while(iterator2 < 7)以下をcolspan番組を正しく取得するためだけに作ってみる
+# td要素は一つだけ取得して、colspan分の曜日だけ同じ番組をmain_dataへ追加できるようにする
+def colspaned_program_capture(td, colspan: int, itr: int):
+    today = datetime.date.today()
+    monday = (today - datetime.timedelta(days=today.weekday())).strftime("%Y%m%d")
+    # 切替基準時間: 6:00になるはず
+    criterion = datetime.datetime.strptime("06:00", "%H:%M")
+    # 曜日ごとの「終了時間」を更新するためのリスト
+    end_times = [datetime.datetime.strptime("06:00", "%H:%M")] * 7
+
+    tmp_main_data = []
+    for i in range(7):
+        tmp_main_data.append([])
+
+    # 
+    # -- 番組情報取得パート -------
+    # 
+    # 放送休止枠なのかチェックする
+    # 複数曜日にまたがっているので要修正
+    if "放送休止" in td.find("div", class_="weeklyProgram-content").stripped_strings:
+        title = "放送休止枠"
+        pfm = ""
+        isRepeat = False
+        isMovie = False
+        isBroadcast = False
+    # 新番組枠かチェックする
+    elif "新番組" in td.find("div", class_="weeklyProgram-content").stripped_strings:
+        title = "未定枠"
+        pfm = ""
+        isRepeat = False
+        isMovie = False
+        isBroadcast = False
+    # 取得要素以下はテキスト以外を含むのかチェックする
+    elif not td.find("div", class_="weeklyProgram-content").string:
+        title = td.select("div.weeklyProgram-content a")[0].text.replace("\n", "", 3)
+        pfm = td.select("span.personality a")[0].text.replace("\n", "", 4) if td.select("span.personality a") else "None"
+        isRepeat = True if "is-repeat" in td.get('class') else False
+        isMovie = True if td.select('i.icon_program-movie') else False
+        isBroadcast = True if td.select('i.icon_program-live') else False
+
+    itr_ = itr
+    while(itr_ < itr + colspan):
+        print("itr", itr)
 
 
 

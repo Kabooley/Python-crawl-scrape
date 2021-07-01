@@ -118,6 +118,9 @@ def create_table(table):
             continue
         for i in range(len(td_all)):
             td = td_all[i]
+            # 
+            # 
+            print("i:  ", i)
 
             # -- 番組開始時間取得パート ----------
 
@@ -142,6 +145,9 @@ def create_table(table):
             # iやi2はイテレータであり曜日を意味する
             i2 = i
             while(i2<7):
+                # 
+                # 
+                print("i2: ", i2)
                 classes = td.get('class')
                 # もしも`colspan`が`None`じゃなくて数値を返す場合、その番組は番組表の複数日にまたがって表示されている
 
