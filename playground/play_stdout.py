@@ -8,12 +8,7 @@ jsonファイルの内容を読み込んで、
 その箇条書きのリストから、カーソルとエンターキーで一つを選択させる
 という機能を実装する
 
-学習内容：
-standard output
-standard input
-ターミナルへの柔軟な出力
-
-処理チャート:
+- 処理チャート:
 
 jsonファイルの内容を読み取る（曜日ごとに分けられたリストである、曜日ごとにはその曜日に放送する番組がリストされている）
 -->
@@ -51,10 +46,30 @@ def main():
     # temp()
 
     # table = read_file(this_scope_global["json_path"])
-    while True:
-        print(stdin_interface())
+    # while True:
+    #     print(stdin_interface())
+
+    output_weekday()
 
 
+
+def output_weekday():
+    sys.stdout = sys.__stdout__
+    template ='\n'\
+                    '===============\n'\
+                    '= Program Resevation =\n'\
+                    '===============\n'\
+                    '      カーソルを移動して曜日を選択してエンターキー\n'\
+                    '\n'\
+                    '        --------------------------------------------------\n'\
+                    '        =>      Monday:  7/5\n'\
+                    '        =>      Monday:  7/5\n'\
+                    '        =>      Monday:  7/5\n'\
+                    '        =>      Monday:  7/5\n'\
+                    '        =>      Monday:  7/5\n'\
+                    '        =>      Monday:  7/5\n'\
+                    '        --------------------------------------------------\n'
+    print(template)
 
 # basic usage
 def output_to_each(file_path: str):
@@ -95,15 +110,15 @@ def stdin_interface() -> str:
     # 最終的に上書き表示したいので、入力内容が画面に出力されてしまうのはNG
     return input('stroke a key: ')
 
-def cureses_():
-    while True:
-        c = stdscr.getch()
-        if c == ord('p'):
-            PrintDocument()
-        elif c == ord('q'):
-            break  # Exit the while loop
-        elif c == curses.KEY_HOME:
-            x = y = 0
+# def cureses_():
+#     while True:
+#         c = stdscr.getch()
+#         if c == ord('p'):
+#             PrintDocument()
+#         elif c == ord('q'):
+#             break  # Exit the while loop
+#         elif c == curses.KEY_HOME:
+#             x = y = 0
 
 
 
@@ -158,6 +173,70 @@ wrapper(main)
 https://segafreder.hatenablog.com/entry/2015/07/28/001716
 https://www.lifewithpython.com/2018/01/python-change-output-by-standard-output-type.html
 https://docs.python.org/ja/3/library/curses.html#constants
+https://note.nkmk.me/python-string-line-break/
+https://stackoverflow.com/questions/26413847/terminal-messed-up-not-displaying-new-lines-after-running-python-script
+
+"""
+
+"""
+View 例
+
+- top
+
+曜日から選ぶ
+or 
+検索キーワードで該当番組を表示する
+
+- 曜日から選ぶ
+
+```terminal
+# > youraccount/currentdirectory$ 実行したとして
+===============
+= Program Resevation =
+===============
+        カーソルを移動して曜日を選択してエンターキー
+
+        --------------------------------------------------
+        =>      Monday:  7/5
+                   Tuesday: 7/6
+                   Wednesday: 7/6
+                   Thursday: 7/6
+                   Friday: 7/6
+                   Saturday: 7/6
+                   Sunday: 7/6
+        --------------------------------------------------
+```
+上記`----`の間をキー入力のたびに上書き表示する
+各曜日を表示するかどうかは、create_table__.jsonの内容次第
+取得した番組表で、一つも番組がない曜日があったらその曜日は表示しないなど
+選択中の行は太字にするとか...
+
+
+ひとまず上記をprintしてみる
+
+- try 1
+```Python
+template = '===============\n'\
+                 '= Program Resevation =\n'\
+                 '===============\n'\
+                 '      カーソルを移動して曜日を選択してエンターキー\n'\
+                 '\n'\
+                 '        --------------------------------------------------\n'\
+                 '        =>      Monday:  7/5\n'\
+                 '        =>      Monday:  7/5\n'\
+                 '        =>      Monday:  7/5\n'\
+                 '        =>      Monday:  7/5\n'\
+                 '        =>      Monday:  7/5\n'\
+                 '        =>      Monday:  7/5\n'\
+                 '        --------------------------------------------------\n'
+
+```
+やっぱり余計なインデントが入る
+あとこれを実行して以降のコンソールの挙動がおかしい
+以降のコンソールの表示がまるで`template`の書式に従って表示されるかのようである
+stdoutについてひととおり学習が必要である
+
+プログラムを終了する前に「正常に戻す」処理が必要なのかもしれん
 
 
 """
