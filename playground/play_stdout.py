@@ -30,26 +30,24 @@ jsonファイルの内容を読み取る（曜日ごとに分けられたリス�
 import sys
 import time
 import json, os
-import curses
 
 this_scope_global = {
     "json_path": "./create_table__.json"
 }
 
-stdscr = curses.initscr()
 
 
 def main():
     # output_to_each('./playground/out/stdout_to_file.txt')
     # output_line_recursively()
     # output_lines_recursively()
-    # temp()
+    temp()
 
     # table = read_file(this_scope_global["json_path"])
     # while True:
     #     print(stdin_interface())
 
-    output_weekday()
+    # output_weekday()
 
 
 
@@ -98,7 +96,7 @@ def temp():
     for num, i in enumerate(range(100)):
         sys.stdout.write("\r%d" % num)
         sys.stdout.flush()
-        time.sleep(0.01)
+        time.sleep(1)
 
 
 # 無限ループの中で呼び出されて、入力されたキーを返す
@@ -109,17 +107,6 @@ def stdin_interface() -> str:
     # 引数の文字列を画面に出力して、入力された内容(入力完了はエンターキー)は次の行に表示される
     # 最終的に上書き表示したいので、入力内容が画面に出力されてしまうのはNG
     return input('stroke a key: ')
-
-# def cureses_():
-#     while True:
-#         c = stdscr.getch()
-#         if c == ord('p'):
-#             PrintDocument()
-#         elif c == ord('q'):
-#             break  # Exit the while loop
-#         elif c == curses.KEY_HOME:
-#             x = y = 0
-
 
 
 
