@@ -43,13 +43,13 @@ def main():
     # output_to_each('./playground/out/stdout_to_file.txt')
     # output_line_recursively()
     # output_lines_recursively()
-    # temp()
+    temp()
 
     # table = read_file(this_scope_global["json_path"])
     # while True:
     #     print(stdin_interface())
 
-    output_weekday()
+    # output_weekday()
 
 
 
