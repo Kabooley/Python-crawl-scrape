@@ -257,6 +257,27 @@ https://github.com/rzakaan/terminal-menu/blob/main/src/menu.py
         - Linux環境を前提にする
         - Linux環境下で自動実行できるようにする
 
-
+    - 予約機能のための番組表CLIをつくる
+    CLIをより簡単に使えるようにするための技術を身に着ける
 ---------------------------------------------------
 
+
+### 参考
+
+ひとまず公式と、
+
+https://docs.python.org/ja/3/library/pprint.html
+
+このStackOverFlowを参考に
+
+https://stackoverflow.com/questions/45022566/create-python-cli-with-select-interface
+
+### ライブラリ
+
+CLI MENU LIBRARY
+
+whaaaat
+simple-term-menu
+consolecli
+
+whaaatがよさげ

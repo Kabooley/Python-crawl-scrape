@@ -96,7 +96,7 @@ def temp():
     for num, i in enumerate(range(100)):
         sys.stdout.write("\r%d" % num)
         sys.stdout.flush()
-        time.sleep(1)
+        time.sleep(0.1)
 
 
 # 無限ループの中で呼び出されて、入力されたキーを返す
